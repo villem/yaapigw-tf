@@ -1,4 +1,4 @@
-package yaapigw_template
+package yaapigw_tf
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"log"
 	"strings"
 
-	yc "example.com/yaapigw_client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	yc "github.com/villem/yaapigw-go-client"
 )
 
 func resourceRunTemplate() *schema.Resource {

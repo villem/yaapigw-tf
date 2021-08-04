@@ -1,4 +1,4 @@
-package yaapigw_template
+package yaapigw_tf
 
 import (
 	"context"

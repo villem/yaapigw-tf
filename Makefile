@@ -1,7 +1,7 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=example.com
-NAMESPACE=vm
-NAME=yaapigw
+HOSTNAME=github.com
+NAMESPACE=villem
+NAME=yaapigw-tf
 BINARY=terraform-provider-${NAME}
 ROUND:=$$(round=$$(cat round); round=$$(($$round + 1)); echo $$round > round; echo $$round)
 VERSION:=0.2.${ROUND}

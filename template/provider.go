@@ -1,13 +1,14 @@
-package yaapigw_template
+package yaapigw_tf
 
 //func not_used() {
 //	var code string = `
 import (
 	"context"
 
-	yc "example.com/yaapigw_client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	yc "github.com/villem/yaapigw-go-client"
 )
 
 func providerConfigure(ctx context.Context,
