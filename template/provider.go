@@ -7,12 +7,23 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/rs/zerolog"
 
 	yc "github.com/villem/yaapigw-go-client"
 )
 
 func providerConfigure(ctx context.Context,
 	d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+
+	level := zerolog.DebugLevel
+	log_level := &level
+	if log_level != nil {
+		zerolog.SetGlobalLevel(*log_level)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+	}
+
+	//yc.InitLogger(nil, &logger)
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
 

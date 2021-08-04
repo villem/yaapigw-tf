@@ -1,1 +1,4 @@
 vendor/
+terraform_test/.terraform
+terraform_test/.terraform.lock.hcl
+*.tfstate

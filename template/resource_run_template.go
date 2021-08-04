@@ -3,11 +3,11 @@ package yaapigw_tf
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/rs/zerolog/log"
 	yc "github.com/villem/yaapigw-go-client"
 )
 
@@ -147,7 +147,7 @@ func resourceRunTemplateCreate(ctx context.Context, d *schema.ResourceData,
 					}
 				}
 			default:
-				log.Printf("[TRACE] Default branch v=%v type is %v\n", v, v_type)
+				log.Trace().Msgf("[TRACE] Default branch v=%v type is %v\n", v, v_type)
 				diags = append(diags, diag.Diagnostic{
 					Severity: diag.Error,
 					Summary:  "Non supported inputs member data type",
@@ -156,13 +156,14 @@ func resourceRunTemplateCreate(ctx context.Context, d *schema.ResourceData,
 				return diags
 
 			}
-			log.Printf("[TRACE] TypeSet input type %v, n=%v, v=%#v, inputs %v\n",
+
+			log.Trace().Msgf("[TRACE] TypeSet input type %v, n=%v, v=%#v, inputs %v\n",
 				*input_type, n, v, inputs)
 
 		}
 
 	default:
-		log.Printf("[ERROR] unknown input type %v\n", input_type)
+		//log.Printf("[ERROR] unknown input type %v\n", input_type)
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Non supported inputs data type",
@@ -173,12 +174,12 @@ func resourceRunTemplateCreate(ctx context.Context, d *schema.ResourceData,
 
 	ois := yc.TemplateRunArguments{}
 	for name, item := range inputs {
-		log.Printf("[TRACE] name %v item i %v\n", name, item)
+		log.Trace().Msgf("name %v item i %v\n", name, item)
 	}
 	ois.Name = d.Get("name").(string)
 	ois.Inputs = inputs
 	o, err := c.RunTemplate(&ois)
-	log.Printf("[TRACE] template run returned %v, err %v \n", o, err)
+	log.Trace().Msgf("template run returned %v, err %v \n", o, err)
 
 	if err != nil {
 		return diag.FromErr(err)
