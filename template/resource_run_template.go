@@ -178,6 +178,13 @@ func resourceRunTemplateCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	ois.Name = d.Get("name").(string)
 	ois.Inputs = inputs
+
+	log.Trace().Msgf("Delete mode is %v\n", c.DeleteMode)
+	if c.DeleteMode {
+		outputs := d.Get("outputs").(map[string]interface{})
+		manager := outputs["manager"].(string)
+		ois.Manger = &manager
+	}
 	o, err := c.RunTemplate(&ois)
 	log.Trace().Msgf("template run returned %v, err %v \n", o, err)
 
@@ -289,18 +296,19 @@ func resourceOrderUpdate(ctx context.Context, d *schema.ResourceData,
 */
 func resourceRunTemplateDelete(ctx context.Context, d *schema.ResourceData,
 	m interface{}) diag.Diagnostics {
-	//c := m.(*yc.YaapiGWClient)
+	c := m.(*yc.YaapiGWClient)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	//orderID := d.Id()
+	c.DeleteMode = true
+	err := resourceRunTemplateCreate(ctx, d, m)
+	c.DeleteMode = false
 
-	/*err := c.DeleteOrder(orderID)
 	if err != nil {
-		return diag.FromErr(err)
+		return err
 	}
-	*/
+
 	// d.SetId("") is automatically called assuming delete returns no errors, but
 	// it is added here for explicitness.
 	d.SetId("")
