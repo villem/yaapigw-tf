@@ -15,7 +15,7 @@ import (
 func providerConfigure(ctx context.Context,
 	d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 
-	level := zerolog.DebugLevel
+	level := zerolog.TraceLevel
 	log_level := &level
 	if log_level != nil {
 		zerolog.SetGlobalLevel(*log_level)
@@ -23,7 +23,6 @@ func providerConfigure(ctx context.Context,
 		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	}
 
-	//yc.InitLogger(nil, &logger)
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
 
@@ -70,12 +69,12 @@ func providerConfigure(ctx context.Context,
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_USERNAME", nil),
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
