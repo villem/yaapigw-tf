@@ -4,6 +4,7 @@ package yaapigw_tf
 //	var code string = `
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -23,9 +24,12 @@ func providerConfigure(ctx context.Context,
 		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	}
 
-	username := d.Get("username").(string)
+	username := d.Get("user_name").(string)
 	password := d.Get("password").(string)
-
+	user_id := d.Get("user_id").(string)
+	server := d.Get("server").(string)
+	port := d.Get("port").(int)
+	timeout := d.Get("timeout_in_seconds").(int)
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
@@ -36,12 +40,13 @@ func providerConfigure(ctx context.Context,
 	})*/
 
 	if (username != "") && (password != "") {
-		c, err := yc.NewClient(nil, &username, &password)
+		uri := fmt.Sprintf("https://%s:%d", server, port)
+		c, err := yc.NewClient(&uri, &username, &password, &user_id, timeout)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Unable to create YAAPIGW client",
-				Detail:   "Unable to auth user for authenticated YAAPIGW client",
+				Summary:  "Unable to create YAAPIGW client connection",
+				Detail:   fmt.Sprintf("%s", err),
 			})
 
 			return nil, diags
@@ -51,7 +56,7 @@ func providerConfigure(ctx context.Context,
 		return c, diags
 	}
 
-	c, err := yc.NewClient(nil, nil, nil)
+	c, err := yc.NewClient(nil, nil, nil, nil, timeout)
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -69,16 +74,40 @@ func providerConfigure(ctx context.Context,
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"username": {
+			"user_name": {
 				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_USERNAME", nil),
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_USER_NAME", nil),
+			},
+			"user_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_USER_ID", nil),
 			},
 			"password": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_PASSWORD", nil),
+			},
+			"server": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_SERVER", nil),
+			},
+			"port": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_SERVER_PORT", 8848),
+			},
+			"timeout_in_seconds": {
+				Type:      schema.TypeInt,
+				Optional:  true,
+				Sensitive: true,
+				DefaultFunc: schema.EnvDefaultFunc("YAAPIGW_SERVER_TIMEOUT_IN_SECONDS",
+					15),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
