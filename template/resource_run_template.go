@@ -23,6 +23,10 @@ func resourceRunTemplate() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"manager_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -72,6 +76,10 @@ func resourceRunSingleDynamicFWTemplate() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Default:  "template_single_fw_for_public_cloud",
+			},
+			"manager_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"inputs": {
 				ForceNew: false,
@@ -243,6 +251,15 @@ func RunTemplate(ctx context.Context, d *schema.ResourceData,
 			ois.Manger = &manager
 		}
 	}
+
+	m_id := d.Get("manager_id")
+	var m_id2 string
+	if m_id != nil {
+		m_id2 = m_id.(string)
+		ois.Manger = &m_id2
+	}
+	log.Trace().Msgf("ois %#v m_id %v mid2 %#v", ois, m_id, m_id2)
+
 	o, err := c.RunTemplate(&ois)
 	log.Trace().Msgf("template run returned %v, err %v \n", o, err)
 	return o, err
@@ -328,7 +345,8 @@ func resourceRunTemplateRead(ctx context.Context, d *schema.ResourceData,
 	} else if err != nil {
 		return diag.FromErr(err)
 	}
-	if run_results.Outputs["initial_configuration"] == "" && outputs != nil {
+	if run_results.Outputs["initial_configuration"] == "" && outputs != nil &&
+		outputs["initial_configuration"] != nil {
 		run_results.Outputs["initial_configuration"] =
 			outputs["initial_configuration"].(string)
 	}
